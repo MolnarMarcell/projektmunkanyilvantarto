@@ -21,17 +21,17 @@ o	Az oldal újratöltésekor az adatok visszaolvasása és megjelenítése
 document.addEventListener('DOMContentLoaded', () => {
     const addTaskBtn = document.getElementById('addTaskBtn');
     const taskInput = document.getElementById('taskInput');
-    const todoColumn = document.getElementById('todoColumn');
-    const inProgressColumn = document.getElementById('inProgressColumn');
-    const doneColumn = document.getElementById('doneColumn');
+    const teendoFeladatok = document.getElementById('teendoFeladatok');
+    const folyamatbanFeladatok = document.getElementById('folyamatbanFeladatok');
+    const keszFeladatok = document.getElementById('keszFeladatok');
 
     // Load tasks from localStorage
     loadTasks();    
     addTaskBtn.addEventListener('click', () => {
         const taskText = taskInput.value.trim();
         if (taskText) {
-            const task = createTaskElement(taskText, 'todo');
-            todoColumn.appendChild(task);
+            const task = createTaskElement(taskText, 'teendo');
+            teendoFeladatok.appendChild(task);
             taskInput.value = '';
             saveTasks();
         }
@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function getStatusColor(status) {
         switch (status) {
-            case 'todo':
+            case 'teendo':
                 return 'beige';
-            case 'inProgress':
+            case 'folyamatban':
                 return 'lightblue';
-            case 'done':
+            case 'kesz':
                 return 'lightgreen';    
             default:
                 return 'white';
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function dragEnd(e) {
         this.classList.remove('dragging');
     }
-    [todoColumn, inProgressColumn, doneColumn].forEach(column => {
+    [teendoFeladatok, folyamatbanFeladatok, keszFeladatok].forEach(column => {
         column.addEventListener('dragover', e => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
@@ -87,7 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
         column.addEventListener('drop', e => {
             e.preventDefault();
             const taskText = e.dataTransfer.getData('text/plain').slice(0, -1);
-            const status = column.id === 'todoColumn' ? 'todo' : column.id === 'inProgressColumn' ? 'inProgress' : 'done';
+            let status = 'teendo';
+            if (column.id === 'folyamatbanFeladatok') status = 'folyamatban';
+            else if (column.id === 'keszFeladatok') status = 'kesz';
             const task = createTaskElement(taskText, status);
             column.appendChild(task);
             saveTasks();
@@ -95,8 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     function saveTasks() {
         const tasks = [];
-        [todoColumn, inProgressColumn, doneColumn].forEach(column => {
-            const status = column.id === 'todoColumn' ? 'todo' : column.id === 'inProgressColumn' ? 'inProgress' : 'done';
+        [teendoFeladatok, folyamatbanFeladatok, keszFeladatok].forEach(column => {
+            let status = 'teendo';
+            if (column.id === 'folyamatbanFeladatok') status = 'folyamatban';
+            else if (column.id === 'keszFeladatok') status = 'kesz';
             Array.from(column.children).forEach(task => {
                 tasks.push({ text: task.textContent.slice(0, -1), status });
             }
@@ -108,12 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         tasks.forEach(({ text, status }) => {
             const task = createTaskElement(text, status);
-            if (status === 'todo') {
-                todoColumn.appendChild(task);
-            } else if (status === 'inProgress') {
-                inProgressColumn.appendChild(task);
-            } else if (status === 'done') {
-                doneColumn.appendChild(task);
+            if (status === 'teendo') {
+                teendoFeladatok.appendChild(task);
+            } else if (status === 'folyamatban') {
+                folyamatbanFeladatok.appendChild(task);
+            } else if (status === 'kesz') {
+                keszFeladatok.appendChild(task);
             }
         });
     }
