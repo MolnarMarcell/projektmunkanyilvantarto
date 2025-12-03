@@ -19,11 +19,15 @@ o	Az oldal újratöltésekor az adatok visszaolvasása és megjelenítése
 
 */
 document.addEventListener('DOMContentLoaded', () => {
-    const addTaskBtn = document.getElementById('addTaskBtn');
-    const taskInput = document.getElementById('taskInput');
+    const addTaskBtn = document.getElementById('hozzaadGomb');
+    const taskInput = document.getElementById('ujFeladatInput');
     const teendoFeladatok = document.getElementById('teendoFeladatok');
     const folyamatbanFeladatok = document.getElementById('folyamatbanFeladatok');
     const keszFeladatok = document.getElementById('keszFeladatok');
+
+    const teendoBox = document.getElementById('Teendobox');
+    const folyamatbanBox = document.getElementById('Folyamatbanbox');
+    const keszBox = document.getElementById('Keszbox');
 
     // Load tasks from localStorage
     loadTasks();    
@@ -48,7 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = 'X';
         deleteBtn.className = 'deleteBtn';
-        deleteBtn.addEventListener('click', () => {
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // <-- EZ FONTOS!
             task.remove();
             saveTasks();
         });
@@ -71,28 +76,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }   
     }
 
+    let draggedTask = null;
+
     function dragStart(e) {
-        e.dataTransfer.setData('text/plain', e.target.textContent);
+        draggedTask = this;
         e.dataTransfer.effectAllowed = 'move';
         this.classList.add('dragging');
     }
     function dragEnd(e) {
         this.classList.remove('dragging');
+        draggedTask = null;
     }
-    [teendoFeladatok, folyamatbanFeladatok, keszFeladatok].forEach(column => {
-        column.addEventListener('dragover', e => {
+
+    [
+        { box: teendoBox, column: teendoFeladatok, status: 'teendo' },
+        { box: folyamatbanBox, column: folyamatbanFeladatok, status: 'folyamatban' },
+        { box: keszBox, column: keszFeladatok, status: 'kesz' }
+    ].forEach(({ box, column, status }) => {
+        box.addEventListener('dragover', e => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         });
-        column.addEventListener('drop', e => {
+        box.addEventListener('drop', e => {
             e.preventDefault();
-            const taskText = e.dataTransfer.getData('text/plain').slice(0, -1);
-            let status = 'teendo';
-            if (column.id === 'folyamatbanFeladatok') status = 'folyamatban';
-            else if (column.id === 'keszFeladatok') status = 'kesz';
-            const task = createTaskElement(taskText, status);
-            column.appendChild(task);
-            saveTasks();
+            if (draggedTask) {
+                draggedTask.style.backgroundColor = getStatusColor(status);
+                draggedTask.dataset.status = status;
+                column.appendChild(draggedTask);
+                saveTasks();
+            }
         });
     });
     function saveTasks() {

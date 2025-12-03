@@ -70,3 +70,42 @@ h1 {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
 
 }
+
+.task {
+    padding: 10px 16px;
+    margin: 8px 0;
+    border-radius: 8px;
+    box-shadow: 0 0px 20px rgba(0, 0, 0, 0.219);
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: grab;
+    border: solid 2px rgba(0, 0, 0, 0.116);
+    transition: box-shadow 0.2s, transform 0.2s;
+
+}
+
+.task.dragging {
+    opacity: 0.6;
+    box-shadow: 0 4px 16px rgb(0, 0, 0);
+    transform: scale(1.03);
+}
+
+.task button.deleteBtn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 12px;
+    border: solid 2px rgba(0, 0, 0, 0.116);
+    transition: background 0.2s;
+}
+.task button.deleteBtn:hover {
+    background: #c0392b;
+    border: solid 2px rgba(0, 0, 0, 0.216);
+}
